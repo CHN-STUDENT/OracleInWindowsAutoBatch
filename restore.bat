@@ -57,8 +57,6 @@ if exist %BACKUPPATH% (
     echo. %date% - %time% Can not Found Backup Path,Restore failed. >> %LOGNAME%      
 )
 
-echo. %date% - %time% Thanks for your use. Press any key to exit.
-echo. %date% - %time% Thanks for your use. Press any key to exit. >> %LOGNAME%
 
 
 

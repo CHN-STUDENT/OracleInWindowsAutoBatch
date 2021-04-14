@@ -28,7 +28,7 @@ set token="XXXXX"
 set sendto="test@163.com"
 @REM 拷贝到远程主机（通过共享映射驱动器实现）
 set COPYTOREMOTE="Y"
-set REMOTEPATH="\\172.16.172.1\backup"
+set REMOTEPATH="\\172.16.172.1\backup\databases"
 @REM 请勿更改下面的代码
 cd /d %BACKUPPATH%
 echo. %date% - %time% Now start to backup.
@@ -60,15 +60,14 @@ if %DAYS% neq 0 (
     echo. %date% - %time% Clean old backup files end. >> %LOGNAME%
 ) 
 
-if "%COPYTOREMOTE%"=="Y" (
+if %COPYTOREMOTE%=="Y" (
+    cd /d %BACKUPPATH%
     echo. %date% - %time% Now start to copy backup files to remote.
     echo. %date% - %time% Now start to copy backup files to remote. >> %LOGNAME%
-    XCOPY %BACKUPPATH%\%NEWTIME%.rar %REMOTEPATH%\%NEWTIME%.rar /S /E /Y  >>  %LOGNAME%
+    XCOPY %NEWTIME%.rar %REMOTEPATH%\ /S /E /Y  >>  %LOGNAME%
     echo. %date% - %time% Copy backup files to remote end.
     echo. %date% - %time% Copy backup files to remote end. >> %LOGNAME%
 )
-echo. %date% - %time% Thanks for your use. Press any key to exit.
-echo. %date% - %time% Thanks for your use. Press any key to exit. >> %LOGNAME%
 
 @REM 文件编码转换 & 两日志合一
 cd /d "%~dp0"
@@ -95,6 +94,8 @@ del sendlog.txt /f /q /a
 del send.old /f /q /a
 del send.txt /f /q /a
 
+echo. %date% - %time% Thanks for your use. Press any key to exit.
+echo. %date% - %time% Thanks for your use. Press any key to exit. >> %LOGNAME%
 
 exit
 
