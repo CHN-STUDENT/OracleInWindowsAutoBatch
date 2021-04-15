@@ -10,7 +10,9 @@ set PASSWORD="test"
 set PORT=1521
 @REM 备份目录和日志目录设置
 set BACKUPPATH="D:\backup\databases"
-set NEWTIME=%date:~0,4%-%date:~5,2%-%date:~8,2%-%time:~0,2%-%time:~3,2%-%time:~6,2%
+@REM 2021.4.15 修正日期无法正常使用的问题，参考https://www.cnblogs.com/daysme/p/6571926.html
+for /f "tokens=2 delims==" %%a in ('wmic path win32_operatingsystem get LocalDateTime /value') do (set t=%%a)
+set NEWTIME=%t:~0,4%-%t:~4,2%-%t:~6,2%-%t:~8,2%-%t:~10,2%-%t:~12,2%
 @REM %LOGNAME% 记录控制台输出日志 %IMPLOGNAME% 记录执行备份 imp 输出的日志 
 set LOGNAME="D:\backup\logs\%NEWTIME%-restore-log.txt"
 set IMPLOGNAME="D:\backup\logs\%NEWTIME%-restore-imp-log.txt"

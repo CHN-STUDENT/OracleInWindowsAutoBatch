@@ -13,7 +13,9 @@ set BACKUPLOGSPATH="D:\backup\logs"
 @REM 压缩设置
 set RARARCHIVEPATH="C:\Program Files\WinRAR\Rar.exe"
 @REM 日志输出时间，文件名设置
-set NEWTIME=%date:~0,4%-%date:~5,2%-%date:~8,2%-%time:~0,2%-%time:~3,2%-%time:~6,2%
+@REM 2021.4.15 修正日期无法正常使用的问题，参考https://www.cnblogs.com/daysme/p/6571926.html
+for /f "tokens=2 delims==" %%a in ('wmic path win32_operatingsystem get LocalDateTime /value') do (set t=%%a)
+set NEWTIME=%t:~0,4%-%t:~4,2%-%t:~6,2%-%t:~8,2%-%t:~10,2%-%t:~12,2%
 @REM %LOGNAME% 记录控制台输出日志 %OSQLLOGNAME% 记录执行备份 backup.sql 输出的日志 
 set LOGNAME="D:\backup\logs\%NEWTIME%-backup-log.txt"
 set EXPLOGNAME="D:\backup\logs\%NEWTIME%-backup-exp-log.txt"
@@ -27,24 +29,23 @@ set user="test@163.com"
 set token="XXXXX"
 set sendto="test@163.com"
 @REM 拷贝到远程主机（通过共享映射驱动器实现）
-set COPYTOREMOTE="Y"
 set REMOTEPATH="\\172.16.172.1\backup\databases"
 @REM 请勿更改下面的代码
 cd /d %BACKUPPATH%
 echo. %date% - %time% Now start to backup.
 echo. %date% - %time% Now start to backup. >> %LOGNAME%
 exp %USERNAME%/%PASSWORD%@%SERVER%:%PORT%/%ORCLSID% file=%NEWTIME%.dump log=%EXPLOGNAME%
-echo. %date% - %time% Now start to archive file.
-echo. %date% - %time% Now start to archive file. >> %LOGNAME%
 @REM 进入工作目录，找到最新的备份文件，并复制为 latest.dump 为还原使用
 cd /d %BACKUPPATH%
-for /f "tokens=*" %%f in ('dir /b /od /a-d') do (set f=%%f)
-echo. %date% - %time% The latest backup file is !f!, copy it as latest.dump
-echo. %date% - %time% The latest backup file is !f!, copy it as latest.dump >> %LOGNAME%
+@REM for /f "tokens=*" %%f in ('dir /b /od /a-d') do (set f=%%f)
+echo. %date% - %time% The latest backup file is %NEWTIME%.dump, copy it as latest.dump
+echo. %date% - %time% The latest backup file is %NEWTIME%.dump, copy it as latest.dump >> %LOGNAME%
 @REM 调用路径处理函数，防止路径拼贴错误
-call :PathHandler !BACKUPPATH! !f! "latest.dump"
+call :PathHandler !BACKUPPATH! %NEWTIME%.dump "latest.dump"
 @REM 覆盖复制
 copy "!filepath!" "!copypath!" /Y >> %LOGNAME%
+echo. %date% - %time% Now start to archive file.
+echo. %date% - %time% Now start to archive file. >> %LOGNAME%
 %RARARCHIVEPATH% a %NEWTIME%.rar %NEWTIME%.dump >> %LOGNAME%
 @REM 删除备份文件
 del %NEWTIME%.dump
